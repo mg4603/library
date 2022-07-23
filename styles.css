@@ -22,3 +22,7 @@ body{
     top: 5vh;
     left: 30vw;
 }
+
+.remove-book{
+    background-color: red;
+}
