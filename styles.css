@@ -5,5 +5,20 @@ body{
     font-size: 24px;
     background-color: white;
     font-family: Arial, Helvetica, sans-serif;
-    
+
+}
+
+.hide-form{
+    display: none;
+}
+
+.add-book-container{
+    position: relative;
+}
+
+#add-book-form{
+    position: absolute;
+    background-color: white;
+    top: 5vh;
+    left: 30vw;
 }

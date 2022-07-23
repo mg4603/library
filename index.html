@@ -10,6 +10,49 @@
 </head>
 <body>
     <h1>Library</h1>
+    <div class="add-book-container">
+        <button id="add-book" type="button">Add Book</button>
+        <form id="add-book-form" class="hide-form">
+            <h2>Add Book</h2>
+            <ul>
+                <li>
+                    <label for="title">Title:</label>
+                    <input type="text" name="title" id="title">
+                </li>
+                <li>
+                    <label for="author">Author:</label>
+                    <input type="text" name="author" id="author">
+                </li>
+                <li>
+                    <label for="number_of_pages">Number of Pages:</label>
+                    <input type="number" name="number_of_pages" id="number_of_pags">
+                </li>
+                <li>
+                    <fieldset>
+                        <legend>Have you read the book?</legend>
+                        <ul>
+                            <li>
+                                <input type="radio" name="readingStatus" id="readBook">
+                                <label for="readBook">Yes</label>
+                            </li>
+                            <li>
+                                <input type="radio" name="readingStatus" id="notReadBook">
+                                <label for="notReadBook">No</label>
+                            </li>
+                        </ul>
+                    </fieldset>
+                </li>
+                <li>
+                    <button type="submit" class="btn">Add</button>
+                </li>
+                <li> 
+                    <button type="button" class="btn cancel" >Cancel</button>
+                </li>
+            </ul>
+        </form>
+    </div>
     
+    <div class="container">
+    </div>
 </body>
 </html>
