@@ -1,5 +1,7 @@
 *{
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 body{
     font-size: 24px;
@@ -7,13 +9,26 @@ body{
     font-family: Arial, Helvetica, sans-serif;
 
 }
-
-.hide-form{
-    display: none;
+h1{
+    text-align: center;
+}
+button{
+    border: 1px solid transparent;
+    background-color: rgb(30, 79, 122);
+    color: white;
+    font-size: 24px;
+    padding: .7vw 1vw;
 }
 
 .add-book-container{
     position: relative;
+}
+form{
+    z-index: 9;
+    background-color: white;
+}
+#add-book-form.hide-form{
+    display: none;
 }
 
 #add-book-form{
@@ -21,8 +36,95 @@ body{
     background-color: white;
     top: 5vh;
     left: 30vw;
+    display: grid;
+    grid-template: 1fr 8fr/1fr;
 }
 
-.remove-book{
-    background-color: red;
+
+#add-book-form h2{
+    text-align: center;
+    grid-row: 1/2;
+    grid-column: 1/ -1;
+}
+
+#add-book-form > ul{
+    list-style: none;
+    display: grid;
+    grid-template-rows: repeat(3, 1fr) 3fr 1fr;
+    gap: 3vh;
+}
+#add-book-form .title-li,
+#add-book-form .author-li,
+#add-book-form .number-of-pages-li{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3vh;
+    align-items: center;
+}
+#add-book-form .title-li input,
+#add-book-form .author-li input,
+#add-book-form .number-of-pages-li input{
+    padding: 0.6vh;
+}
+
+#add-book-form .buttons-li{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+#add-book-form > ul >li > fieldset{
+    border: 1px solid transparent;
+}
+#add-book-form > ul > li > fieldset > ul{
+    list-style: none;
+}
+
+button.remove-book{
+    background: url('./assets/images/close.svg');
+    background-repeat: no-repeat;
+    width: 1vw;
+    height: 1vw;
+    border: 1px solid transparent;
+}
+
+.translucent-container{
+    opacity: 30%;
+}
+
+.container{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 300px));
+    padding: 3vh;
+    gap: 3vh;
+}
+
+.card{
+    display: grid;
+    grid-template: 1fr 1fr 1fr/ 1fr auto;
+    align-items: center;
+    
+}
+
+.card h2{
+    grid-row:1/2;
+    grid-column:1/2;
+}
+
+.card .remove-book{
+    grid-row: 1/2;
+    grid-column:2/3;
+}
+
+.card p{
+    grid-row: 2/3;
+}
+.card ul{
+    grid-row: 3/4;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+}
+.card ul li:last-child{
+    justify-self: end;
 }

@@ -1,5 +1,5 @@
 const containerDiv = document.querySelector('.container');
-
+const addBookToLibraryForm = document.getElementById('add-book-form'); 
 
 let myLibrary = [];
 
@@ -25,15 +25,16 @@ Book.prototype.removeBook = function(){
 function displayBook(book){
     const card = document.createElement('div');
     const h2 = document.createElement('h2');
+    const removeBook = document.createElement('button');
     const p = document.createElement('p');
     const ul = document.createElement('ul');
     const number_of_pages = document.createElement('li');
     const readLi = document.createElement('li');
     const readToggle = document.createElement('button');
-    const removeBook = document.createElement('button');
+    
 
     removeBook.classList.add('remove-book');
-    removeBook.textContent = "x";
+    // removeBook.textContent = "x";
 
     card.classList.add('card');
     h2.textContent = book.title;
@@ -80,13 +81,15 @@ function deleteAllChildren(node){
 
 const addBookBtn = document.getElementById('add-book');
 addBookBtn.addEventListener('click', ()=>{
-    document.getElementById("add-book-form").classList.remove('hide-form');
+    addBookToLibraryForm.classList.remove('hide-form');
+    containerDiv.classList.add('translucent-container')
 });
 
-const addBookToLibraryForm = document.getElementById('add-book-form'); 
+
 const closeFormBtn = document.querySelector('.btn.cancel');
 closeFormBtn.addEventListener('click', ()=>{
     addBookToLibraryForm.classList.add('hide-form');
+    containerDiv.classList.remove('translucent-container')
 })
 
 const addBookToLibraryBtn = document.querySelector('#add-book-form .btn');
@@ -100,7 +103,7 @@ addBookToLibraryForm.addEventListener('submit', (event)=>{
     addBookToLibrary(book);
     addBookToLibraryForm.reset();
     addBookToLibraryForm.classList.add('hide-form')
-    
+    containerDiv.classList.remove('translucent-container')
     renderBookCards();
 })
 
