@@ -1,5 +1,4 @@
 const containerDiv = document.querySelector('.container');
-const addBookToLibraryForm = document.getElementById('add-book-form'); 
 
 class Book{
     #author;
@@ -23,17 +22,29 @@ class Book{
 
 const myLibrary = class{
     #books = [];
+    #reload = 0;
+
     constructor(){
 
     }
-    addBook(book){
-        this.#books.push(book)
+
+    addBook(author, title, number_of_pages, readingStatus){
+        this.#books.push(new Book(author, title, number_of_pages, readingStatus))
     }
     removeBook(book){
         this.#books = this.#books.filter(bookToCheck=>{
             return book.title != bookToCheck.title;
         })
         //cards have to be re-rendered
+    }
+    reloadLibrary(){
+        return this.#reload;
+    }
+    shouldReloadLibrary(){
+        this.#reload = 1;
+    }
+    doneReloadingLibrary(){
+        this.#reload = 0;
     }
 }
 
@@ -46,8 +57,9 @@ class Card{
     #number_of_pagesLi;
     #readBtnLi;
     #readToggleBtn;
+    #book;
 
-    constructor(doc){
+    constructor(doc, book){
         this.#card = doc.createElement('div');
         this.#bookTitleH2 = doc.createElement('h2');
         this.#removeBookBtn = doc.createElement('button');
@@ -56,6 +68,7 @@ class Card{
         this.#number_of_pagesLi = doc.createElement('li');
         this.#readBtnLi = doc.createElement('li');
         this.#readToggleBtn = doc.createElement('button');
+        this.#book = book;
     }
 
     //bare
@@ -85,65 +98,94 @@ class Card{
         this.#readToggleBtn.textContent = this.#readingStatusToText(book.readingStatus);
     }
 
+    #addElementEventListeners(){
+        this.#removeBookBtn.addEventListener('click', ()=>{
+            this.#book.removeBook();
+        });
+        this.#readToggleBtn.addEventListener('click', ()=>{
+            this.#book.toggleReadStatus();
+            this.#readToggleBtn.textContent = this.#readingStatusToText(1);
+        });
+    
+    }
+
     createBookCard(book){
         this.#createCard();
         this.#populateCard(book);
+        this.#addElementEventListeners();
     }
 
 }
 
-const DisplayController = (function(doc){
-    this.#removeBookBtn.addEventListener('click', ()=>{
-        book.removeBook();
-    });
-    this.#readToggleBtn.addEventListener('click', ()=>{
-        book.toggleReadStatus();
-        this.#readToggleBtn.textContent = this.#readingStatusToText(1);
-    });
+function hideCards(){
+    containerDiv.classList.add('translucent-container');
+}
 
-    function _deleteAllChildrean(node){
+function showCards(){
+    containerDiv.classList.remove('translucent-container');
+}
+
+const FormHandler = (function(doc){
+    const _addBookToLibraryForm = doc.getElementById('add-book-form'); 
+    const _addBookBtn = document.getElementById('add-book');
+    const _closeFormBtn = document.querySelector('.btn.cancel');
+    
+    function addBtnEventHandler(){
+        this._addBookBtn.addEventListener('click', ()=>{
+            this._addBookToLibraryForm.classList.remove('hide-form');
+            hideCards();
+        });
+    }
+
+    function closeFormBtnEventHandler(){
+        this._closeFormBtn.addEventListener('click', ()=>{
+            this._addBookToLibraryForm.classList.add('hide-form');
+            hideCards();
+        });
+    }
+
+    function addBookToLibraryFormEventHandler(){
+        this._addBookToLibraryForm.addEventListener('submit', (event)=>{
+            event.preventDefault();
+            let readingStatus = (this._addBookToLibraryForm.elements['readingStatus'].value == "yes")?1:0;
+            const book = new Book(this._addBookToLibraryForm.elements['author'].value,
+                            this._addBookToLibraryForm.elements['title'].value,
+                             this._addBookToLibraryForm.elements['number_of_pages'].value, readingStatus);
+            myLibrary.addBookToLibrary(book);
+            this._addBookToLibraryForm.reset();
+            this._addBookToLibraryForm.classList.add('hide-form')
+            showCards();
+        });
+    }
+
+
+    return {addBtnEventHandler, closeFormBtnEventHandler, addBookToLibraryFormEventHandler};
+})(document);
+
+const DisplayController = (function(doc){
+
+    function _deleteAllChildren(node){
         while(node.hasChildNodes()){
             node.removeChild(node.lastChild);
         }
     }
 
+    function renderBookCards(){
+        this._deleteAllChildren(this._containerDiv);
+        myLibrary.forEach(book=>{this._containerDiv.appendChild(displayBook(book))})
+    }
+
+    function initializeDisplay(){
+        FormHandler.addBtnEventHandler();
+        FormHandler.closeFormBtnEventHandler();
+        FormHandler.addBookToLibraryFormEventHandler();
+        this.renderBookCards();
+    }
+    
+
+    return {renderBookCards, initializeDisplay};
 
 })(document);
 
 
-function renderBookCards(){
-    deleteAllChildren(containerDiv);
-    myLibrary.forEach(book=>{containerDiv.appendChild(displayBook(book))})
-}
-
-
-
-const addBookBtn = document.getElementById('add-book');
-addBookBtn.addEventListener('click', ()=>{
-    addBookToLibraryForm.classList.remove('hide-form');
-    containerDiv.classList.add('translucent-container')
-});
-
-
-const closeFormBtn = document.querySelector('.btn.cancel');
-closeFormBtn.addEventListener('click', ()=>{
-    addBookToLibraryForm.classList.add('hide-form');
-    containerDiv.classList.remove('translucent-container')
-})
-
-const addBookToLibraryBtn = document.querySelector('#add-book-form .btn');
-
-addBookToLibraryForm.addEventListener('submit', (event)=>{
-    event.preventDefault();
-    let readingStatus = (addBookToLibraryForm.elements['readingStatus'].value == "yes")?1:0;
-    const book = new Book(addBookToLibraryForm.elements['author'].value,
-                     addBookToLibraryForm.elements['title'].value,
-                     addBookToLibraryForm.elements['number_of_pages'].value, readingStatus);
-    addBookToLibrary(book);
-    addBookToLibraryForm.reset();
-    addBookToLibraryForm.classList.add('hide-form')
-    containerDiv.classList.remove('translucent-container')
-    renderBookCards();
-})
-
-renderBookCards();
+DisplayController.initializeDisplay();
