@@ -6,7 +6,6 @@ class Book{
     #number_of_pages;
     #readingStatus;
     constructor(author, title, number_of_pages, readingStatus){
-        super();
         this.#author = author;
         this.#title = title;
         this.#number_of_pages = number_of_pages;
@@ -15,37 +14,56 @@ class Book{
     toggleReadStatus(){
         this.#readingStatus = !this.#readingStatus;
     }
-    
+    getAuthor(){
+        return this.#author;
+    }
+    getTitle(){
+        return this.#title;
+    }
+    getNumberOfPages(){
+        return this.#number_of_pages;
+    }
+    getReadingStatus(){
+        return this.#readingStatus;
+    }
 }
 
 
 
-const myLibrary = class{
+class Library{
     #books = [];
-    #reload = 0;
+    #numberOfBook = 0;
 
     constructor(){
 
     }
+    #incrementNumberOfBooks(){
+        this.#numberOfBook++;
+    }
+    #decrementNumberOfBooks(){
+        this.#numberOfBook--;
+    }
 
     addBook(author, title, number_of_pages, readingStatus){
-        this.#books.push(new Book(author, title, number_of_pages, readingStatus))
+        this.#incrementNumberOfBooks();
+        this.#books.push(new Book(author, title, number_of_pages, readingStatus));
     }
+
     removeBook(book){
         this.#books = this.#books.filter(bookToCheck=>{
-            return book.title != bookToCheck.title;
-        })
-        //cards have to be re-rendered
+            this.#decrementNumberOfBooks();
+            return book.getTitle() != bookToCheck.getTitle();
+        });
     }
-    reloadLibrary(){
-        return this.#reload;
+
+    getBooks(){
+        return this.#books;
     }
-    shouldReloadLibrary(){
-        this.#reload = 1;
+
+    getNumberOfBook(){
+        return this.#numberOfBook;
     }
-    doneReloadingLibrary(){
-        this.#reload = 0;
-    }
+    
 }
 
 class Card{
@@ -87,32 +105,36 @@ class Card{
     }
 
     #readingStatusToText(readingStatus){
-        return readingStatus == 1? "Read": "Unread";
+        return readingStatus? "Read": "Unread";
     }
 
-    #populateCard(book){
+    #populateCard(){
         this.#card.classList.add('card');
-        this.#bookTitleH2.textContent = book.title;
-        this.#authorP.textContent = book.author;
-        this.#number_of_pagesLi.textContent = book.number_of_pages;
-        this.#readToggleBtn.textContent = this.#readingStatusToText(book.readingStatus);
+        this.#bookTitleH2.textContent = this.#book.getTitle();
+        this.#authorP.textContent = this.#book.getAuthor();
+        this.#number_of_pagesLi.textContent = this.#book.getNumberOfPages();
+        this.#readToggleBtn.textContent = this.#readingStatusToText(this.#book.getReadingStatus());
+
     }
 
     #addElementEventListeners(){
         this.#removeBookBtn.addEventListener('click', ()=>{
-            this.#book.removeBook();
+            myLibrary.removeBook(this.#book);
+            DisplayController.renderBookCards();
         });
         this.#readToggleBtn.addEventListener('click', ()=>{
             this.#book.toggleReadStatus();
-            this.#readToggleBtn.textContent = this.#readingStatusToText(1);
+            // console.log(this.#book.getReadingStatus())
+            this.#readToggleBtn.textContent = this.#readingStatusToText(this.#book.getReadingStatus());
         });
     
     }
 
-    createBookCard(book){
+    createBookCard(){
         this.#createCard();
-        this.#populateCard(book);
+        this.#populateCard();
         this.#addElementEventListeners();
+        return this.#card;
     }
 
 }
@@ -124,37 +146,40 @@ function hideCards(){
 function showCards(){
     containerDiv.classList.remove('translucent-container');
 }
+let myLibrary = new Library()
+
 
 const FormHandler = (function(doc){
     const _addBookToLibraryForm = doc.getElementById('add-book-form'); 
-    const _addBookBtn = document.getElementById('add-book');
-    const _closeFormBtn = document.querySelector('.btn.cancel');
+    const _addBookBtn = doc.getElementById('add-book');
+    const _closeFormBtn = doc.querySelector('.btn.cancel');
     
     function addBtnEventHandler(){
-        this._addBookBtn.addEventListener('click', ()=>{
-            this._addBookToLibraryForm.classList.remove('hide-form');
+        _addBookBtn.addEventListener('click', ()=>{
+            _addBookToLibraryForm.classList.remove('hide-form');
             hideCards();
         });
     }
 
     function closeFormBtnEventHandler(){
-        this._closeFormBtn.addEventListener('click', ()=>{
-            this._addBookToLibraryForm.classList.add('hide-form');
+        _closeFormBtn.addEventListener('click', ()=>{
+            _addBookToLibraryForm.classList.add('hide-form');
             hideCards();
         });
     }
 
     function addBookToLibraryFormEventHandler(){
-        this._addBookToLibraryForm.addEventListener('submit', (event)=>{
+        _addBookToLibraryForm.addEventListener('submit', (event)=>{
             event.preventDefault();
-            let readingStatus = (this._addBookToLibraryForm.elements['readingStatus'].value == "yes")?1:0;
-            const book = new Book(this._addBookToLibraryForm.elements['author'].value,
-                            this._addBookToLibraryForm.elements['title'].value,
-                             this._addBookToLibraryForm.elements['number_of_pages'].value, readingStatus);
-            myLibrary.addBookToLibrary(book);
-            this._addBookToLibraryForm.reset();
-            this._addBookToLibraryForm.classList.add('hide-form')
+            let readingStatus = (_addBookToLibraryForm.elements['readingStatus'].value == "yes")?1:0;
+            myLibrary.addBook(_addBookToLibraryForm.elements['author'].value,
+                    _addBookToLibraryForm.elements['title'].value,
+                    _addBookToLibraryForm.elements['number_of_pages'].value, readingStatus);
+
+            _addBookToLibraryForm.reset();
+            _addBookToLibraryForm.classList.add('hide-form')
             showCards();
+            DisplayController.renderBookCards();
         });
     }
 
@@ -163,7 +188,6 @@ const FormHandler = (function(doc){
 })(document);
 
 const DisplayController = (function(doc){
-
     function _deleteAllChildren(node){
         while(node.hasChildNodes()){
             node.removeChild(node.lastChild);
@@ -171,19 +195,24 @@ const DisplayController = (function(doc){
     }
 
     function renderBookCards(){
-        this._deleteAllChildren(this._containerDiv);
-        myLibrary.forEach(book=>{this._containerDiv.appendChild(displayBook(book))})
+        _deleteAllChildren(containerDiv);
+        myLibrary.getBooks().forEach(book=>{
+            const bookCard = new Card(document, book)
+            containerDiv.appendChild(bookCard.createBookCard())
+        });
     }
 
     function initializeDisplay(){
         FormHandler.addBtnEventHandler();
         FormHandler.closeFormBtnEventHandler();
         FormHandler.addBookToLibraryFormEventHandler();
-        this.renderBookCards();
+        renderBookCards();
+        
     }
-    
 
-    return {renderBookCards, initializeDisplay};
+
+
+    return {initializeDisplay, renderBookCards};
 
 })(document);
 
